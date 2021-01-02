@@ -19,6 +19,7 @@ WORK_STUDY_CLASS = 'webform-component--work-study'
 PAY_RATE_CLASS = 'webform-component--pay-rate'
 POSITIONS_AVAILABLE_CLASS = 'webform-component--positions-available'
 
+
 class JobPostingScraper:
     def __init__(self):
         self.jobs = []
@@ -101,17 +102,17 @@ class JobPostingParser:
 
     def getJob(self):
         return {
-            'title' : self.getTitle(),
-            'start_date' : self.getStartDate(),
-            'end_date' : self.getEndDate(),
-            'contact_name' : self.getContactName(),
-            'contact_email' : self.getContactEmail(),
-            'description' : self.getDescription(),
-            'hours' : self.getHoursSchedule(),
-            'location' : self.getLocation(),
-            'work_study' : self.getWorkStudy(),
-            'pay_rate' : self.getPayRate(),
-            'positions_available' : self.getPositionsAvailable()
+            'title': self.getTitle(),
+            'start_date': self.getStartDate(),
+            'end_date': self.getEndDate(),
+            'contact_name': self.getContactName(),
+            'contact_email': self.getContactEmail(),
+            'description': self.getDescription(),
+            'hours': self.getHoursSchedule(),
+            'location': self.getLocation(),
+            'work_study': self.getWorkStudy(),
+            'pay_rate': self.getPayRate(),
+            'positions_available': self.getPositionsAvailable()
         }
 
 
@@ -120,9 +121,9 @@ def main():
     job_postings = scraper.getRawJobPostings()
 
     jobs = [JobPostingParser(x).getJob() for x in job_postings]
-    
-    
-    #print(json.dumps(jobs, indent=4)) 
+
+    #print(json.dumps(jobs, indent=4))
+
 
 if __name__ == "__main__":
     main()

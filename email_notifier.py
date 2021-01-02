@@ -1,15 +1,14 @@
-import smtplib, ssl
+import smtplib
+import ssl
 import sqlite3
 from sqlite3 import Error
 import pandas as pd
 
 
-
-    
 def send_notification(email_list):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
-    sender_email = "gtstudentjobs@gmail.com" 
+    sender_email = "gtstudentjobs@gmail.com"
     password = input("Type your password and press enter:")
     message = """\
     Subject: Hi there
@@ -24,14 +23,11 @@ def send_notification(email_list):
         server.login(sender_email, password)
         for elem in email_list:
             server.sendmail(sender_email, elem, message)
-    
+
 
 def main():
-    
-    
+
     print("Success!")
-    
-    
 
 
 if __name__ == "__main__":

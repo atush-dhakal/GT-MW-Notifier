@@ -1,13 +1,12 @@
-from scrape import JobPostingScraper
-from scrape import JobPostingParser
+from scraper import JobPostingScraper, JobPostingParser
 import sqlite3
 from sqlite3 import Error
 import pandas as pd
 from datetime import datetime
 
+# Connect to the database
 
 
-#Connect to the database
 def create_connection(path):
     connection = None
 
@@ -21,17 +20,17 @@ def create_connection(path):
     return connection
 
 
-#runs our SQL commands and outputs a DataFrame
+# runs our SQL commands and outputs a DataFrame
 def run_query(query, connection):
-    return pd.read_sql_query(query,connection) 
+    return pd.read_sql_query(query, connection)
 
 
-#build database for very first time
+# build database for very first time
 def write_db(connection):
     scraper = JobPostingScraper()
     job_postings = scraper.getRawJobPostings()
 
-    jobs = [JobPostingParser(x).getJob() for x in job_postings] #json
+    jobs = [JobPostingParser(x).getJob() for x in job_postings]  # json
     titleList = []
     start_date = []
     end_date = []
@@ -55,64 +54,63 @@ def write_db(connection):
         work_study.append(entry["work_study"])
         pay_rate.append(entry["pay_rate"])
         positions_available.append(entry["positions_available"])
-        
-    #engineer the dataframe
-    job_frame = pd.DataFrame({"Job Title": titleList, "Start Date": start_date, 
+
+    # engineer the dataframe
+    job_frame = pd.DataFrame({"Job Title": titleList, "Start Date": start_date,
                               "End Date": end_date, "Contact Name": contact_name,
                               "Contact Email": contact_email, "Description": description,
                               "Hours": hours, "Location": location, "Work Study": work_study,
                               "Pay Rate": pay_rate, "Positions Available": positions_available})
-    
-    #write data frame to database file
-    job_frame.to_sql('job_postings', connection, if_exists='replace', index=False)
+
+    # write data frame to database file
+    job_frame.to_sql('job_postings', connection,
+                     if_exists='replace', index=False)
 
 
 """
 Is there a new job?
 """
+
+
 def newJobs(connection):
-    #scrape for current data
+    # scrape for current data
     scraper = JobPostingScraper()
     job_postings = scraper.getRawJobPostings()
 
-    jobs = [JobPostingParser(x).getJob() for x in job_postings] #json
-    
-    #get prior dataframe
+    jobs = [JobPostingParser(x).getJob() for x in job_postings]  # json
+
+    # get prior dataframe
     currJobs = run_query('''
                         SELECT "Job Title", "Start Date", "End Date", "Description"
                         FROM job_postings;
                         ''', connection)
-    descriptions_df = currJobs["Description"] #old description
-    
+    descriptions_df = currJobs["Description"]  # old description
+
     old_description_dict = {}
     new_description_dict = {}
     for entry in descriptions_df:
-        old_description_dict[entry] = 1 #replace spaces with underscores
+        old_description_dict[entry] = 1  # replace spaces with underscores
     for job in jobs:
         new_description_dict[job["description"]] = 1
-    
-    #we only checked for description because description most unique attributes btwn two individual postings 
+
+    # we only checked for description because description most unique attributes btwn two individual postings
     for k in new_description_dict.keys():
         if (k not in old_description_dict):
             return updateDataBase(connection, 1)
     return 0
 
+
 def updateDataBase(connection, resultVal):
-    write_db(connection) #build most updated table and get rid of current entries
+    # build most updated table and get rid of current entries
+    write_db(connection)
     return resultVal
-    
-                    
-                    
-    
 
 
 def main():
-    connection = create_connection('jobs.db') #our database
+    connection = create_connection('jobs.db')  # our database
     # write_db(connection) #happen only once. NEVER RUN THIS LINE!
-    
-    print(newJobs(connection)) #check for new stuff
-    
-    
+
+    print(newJobs(connection))  # check for new stuff
 
 
 if __name__ == "__main__":
