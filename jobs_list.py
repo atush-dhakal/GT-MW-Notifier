@@ -4,8 +4,8 @@ from scraper import JobPostingScraper, JobPostingParser
 from database import Database
 
 
-DATABASE_COLUMNS = ["Job Title", "Start Date", "End Date", "Contact Name", "Contact Email",
-                    "Description", "Hours", "Location", "Work Study", "Pay Rate", "Positions Available"]
+DATABASE_COLUMNS = ["job_title", "start_date", "end_date", "contact_name", "contact_email",
+                    "description", "hours", "location", "work_study", "pay_rate", "positions_available"]
 
 # Populate the database with default values for the first time
 
