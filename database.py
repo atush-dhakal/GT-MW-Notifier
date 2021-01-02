@@ -22,11 +22,11 @@ class Database:
     def write_to_database(self, dataframe: pd.DataFrame, table_name = 'job_postings'):
         if self.connection is None:
             raise "No connection to the database"
-        return dataframe.to_sql(table_name, self.connection, if_exists='replace', index=False)
+        return dataframe.to_sql(table_name, self.connection, if_exists='append', index=False)
 
 def main():
-    new_database = Database(path="jobs.db")
-    print(new_database.run_query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"))
+    db = Database(path="jobs.db")
+    print(db.run_query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"))
 
 if __name__ == "__main__":
     main()
