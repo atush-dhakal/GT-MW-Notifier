@@ -5,7 +5,7 @@ import jobs_list
 
 
 def run_schedule():
-    jobs_list.main()  # run jobs_list
+    jobs_list.populate_new_jobs()
     print("done!")
 
 
