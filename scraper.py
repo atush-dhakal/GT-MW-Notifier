@@ -51,6 +51,8 @@ class JobPostingParser:
 
     def parsePrefixSuffixComponent(self, class_name):
         raw_job_data = self.raw_job_posting.find('div', {'class': class_name})
+        if raw_job_data is None:
+            return None
         prefix = raw_job_data.find(
             'span', {'class': 'field-prefix'}).get_text()
         suffix = raw_job_data.find(
@@ -61,6 +63,8 @@ class JobPostingParser:
 
     def parseBasicComponent(self, class_name):
         raw_job_data = self.raw_job_posting.find('div', {'class': class_name})
+        if raw_job_data is None:
+            return None
         return raw_job_data.contents[2].strip()
 
     def getTitle(self):
