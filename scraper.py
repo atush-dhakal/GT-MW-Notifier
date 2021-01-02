@@ -7,6 +7,18 @@ JOB_WEBSITE = 'https://studentcenter.gatech.edu/campus-jobs'
 JOB_POSTING_CONTAINER_ID = 'block-views-job-postings-block-3'
 JOB_POSTING_CLASS = 'views-row'
 
+TITLE_CLASS = 'webform-component--position-title'
+START_DATE_CLASS = 'webform-component--start-date'
+END_DATE_CLASS = 'webform-component--end-date'
+CONTACT_NAME_CLASS = 'webform-component--contact-name'
+CONTACT_EMAIL_CLASS = 'webform-component--contact-email'
+JOB_DESCRIPTION_CLASS = 'webform-component--job-description'
+HOURS_SCHEDULE_CLASS = 'webform-component--hours-schedule'
+LOCATION_CLASS = 'webform-component--location'
+WORK_STUDY_CLASS = 'webform-component--work-study'
+PAY_RATE_CLASS = 'webform-component--pay-rate'
+POSITIONS_AVAILABLE_CLASS = 'webform-component--positions-available'
+
 
 class JobPostingScraper:
     def __init__(self):
@@ -39,6 +51,8 @@ class JobPostingParser:
 
     def parsePrefixSuffixComponent(self, class_name):
         raw_job_data = self.raw_job_posting.find('div', {'class': class_name})
+        if raw_job_data is None:
+            return None
         prefix = raw_job_data.find(
             'span', {'class': 'field-prefix'}).get_text()
         suffix = raw_job_data.find(
@@ -49,58 +63,60 @@ class JobPostingParser:
 
     def parseBasicComponent(self, class_name):
         raw_job_data = self.raw_job_posting.find('div', {'class': class_name})
+        if raw_job_data is None:
+            return None
         return raw_job_data.contents[2].strip()
 
     def getTitle(self):
-        return self.parsePrefixSuffixComponent('webform-component--position-title')
+        return self.parsePrefixSuffixComponent(TITLE_CLASS)
 
     def getStartDate(self):
-        str_date = self.parseBasicComponent('webform-component--start-date')
+        str_date = self.parseBasicComponent(START_DATE_CLASS)
         return parse(str_date).isoformat()
 
     def getEndDate(self):
-        str_date = self.parseBasicComponent('webform-component--end-date')
+        str_date = self.parseBasicComponent(END_DATE_CLASS)
         return parse(str_date).isoformat()
 
     def getContactName(self):
-        return self.parsePrefixSuffixComponent('webform-component--contact-name')
+        return self.parsePrefixSuffixComponent(CONTACT_NAME_CLASS)
 
     def getContactEmail(self):
-        return self.parseBasicComponent('webform-component--contact-email')
+        return self.parseBasicComponent(CONTACT_EMAIL_CLASS)
 
     def getDescription(self):
         raw_job_description = self.raw_job_posting.find(
-            'div', {'class': 'webform-component--job-description'})
+            'div', {'class': JOB_DESCRIPTION_CLASS})
         return raw_job_description.find('div', {'class': 'webform-long-answer'}).get_text().strip()
 
     def getHoursSchedule(self):
-        return self.parsePrefixSuffixComponent('webform-component--hours-schedule')
+        return self.parsePrefixSuffixComponent(HOURS_SCHEDULE_CLASS)
 
     def getLocation(self):
-        return self.parsePrefixSuffixComponent('webform-component--location')
+        return self.parsePrefixSuffixComponent(LOCATION_CLASS)
 
     def getWorkStudy(self):
-        return self.parsePrefixSuffixComponent('webform-component--work-study')
+        return self.parsePrefixSuffixComponent(WORK_STUDY_CLASS)
 
     def getPayRate(self):
-        return self.parsePrefixSuffixComponent('webform-component--pay-rate')
+        return self.parsePrefixSuffixComponent(PAY_RATE_CLASS)
 
     def getPositionsAvailable(self):
-        return self.parsePrefixSuffixComponent('webform-component--positions-available')
+        return self.parsePrefixSuffixComponent(POSITIONS_AVAILABLE_CLASS)
 
     def getJob(self):
         return {
-            'title' : self.getTitle(),
-            'start_date' : self.getStartDate(),
-            'end_date' : self.getEndDate(),
-            'contact_name' : self.getContactName(),
-            'contact_email' : self.getContactEmail(),
-            'description' : self.getDescription(),
-            'hours' : self.getHoursSchedule(),
-            'location' : self.getLocation(),
-            'work_study' : self.getWorkStudy(),
-            'pay_rate' : self.getPayRate(),
-            'positions_available' : self.getPositionsAvailable()
+            'title': self.getTitle(),
+            'start_date': self.getStartDate(),
+            'end_date': self.getEndDate(),
+            'contact_name': self.getContactName(),
+            'contact_email': self.getContactEmail(),
+            'description': self.getDescription(),
+            'hours': self.getHoursSchedule(),
+            'location': self.getLocation(),
+            'work_study': self.getWorkStudy(),
+            'pay_rate': self.getPayRate(),
+            'positions_available': self.getPositionsAvailable()
         }
 
 
@@ -109,9 +125,9 @@ def main():
     job_postings = scraper.getRawJobPostings()
 
     jobs = [JobPostingParser(x).getJob() for x in job_postings]
-    
-    
-    #print(json.dumps(jobs, indent=4)) 
+
+    #print(json.dumps(jobs, indent=4))
+
 
 if __name__ == "__main__":
     main()
