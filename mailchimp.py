@@ -64,5 +64,5 @@ class OnCampusJobList():
 
 if __name__ == "__main__":
     custom_list = OnCampusJobList()
-    members = custom_list.get_members()
-    print([x['email_address'] for x in members])
+    members = custom_list.get_email_list()
+    print([x for x in members])

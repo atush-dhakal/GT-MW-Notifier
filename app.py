@@ -25,7 +25,8 @@ def add_subscriber():
     try:
         util.add_email_subscriber(email_subscriber)
         return {'success': True}, 200
-    except:
+    except Exception as e:
+        print(e)
         return {'error': "Failed to add subscriber"}, 500
 
 

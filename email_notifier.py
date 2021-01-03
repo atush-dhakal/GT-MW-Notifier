@@ -3,18 +3,43 @@ import ssl
 import sqlite3
 from sqlite3 import Error
 import pandas as pd
+import jobs_list
+from scraper import JobPostingScraper, JobPostingParser
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 
-def send_notification(email_list):
+def get_template_message(job_detail):
+    message = """\
+    
+    Title: {}
+    Description: {}
+    Start Date: {}
+    End Date: {}
+    Contact Name: {}
+    Contact Email: {}
+    Hours: {}
+    Location: {}
+    Work Study: {}
+    Pay Rate: {}
+    Positions Available: {}
+        """.format(job_detail["title"], job_detail["description"], job_detail["start_date"], job_detail["end_date"], job_detail["contact_name"], job_detail["contact_email"],
+                   job_detail["hours"], job_detail["location"], job_detail["work_study"], job_detail["pay_rate"], job_detail["positions_available"])
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = u"Now Hiring {}".format(job_detail["title"])
+    part1 = MIMEText(message,
+                    "plain", "utf-8")
+    msg.attach(part1)
+
+    return msg.as_string().encode('ascii')
+
+
+def send_notification(email_list, job_detail):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
     sender_email = "gtstudentjobs@gmail.com"
     password = input("Type your password and press enter:")
-    message = """\
-    Subject: Hi there
-
-    This is a random email. If you receive, Great!"""
-
+    message = get_template_message(job_detail)
     context = ssl.create_default_context()
     with smtplib.SMTP(smtp_server, port) as server:
         server.ehlo()  # Can be omitted
@@ -26,7 +51,7 @@ def send_notification(email_list):
 
 
 def main():
-
+    send_notification()
     print("Success!")
 
 
