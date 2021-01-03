@@ -3,3 +3,4 @@
 output.txt
 config.py
 /__pycache__
+config.ini
