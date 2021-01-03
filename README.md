@@ -1,4 +1,22 @@
-## Configurations
+# Setup
+
+## Create a virtual environment
+Create a virtual environment for the python project. Run the following:
+```
+    python -m venv venv
+    ./venv/Scripts/activate
+```
+This simplies the need to get the dependencies for the project.
+
+
+## Install dependencies
+Simply run the following:
+```
+    pip install -r requirements.txt
+```
+This will install all the dependencies used in the project. Make sure your have the `venv` enabled.
+
+## Adding configs
 We will be adding any configuration values and API keys in `config.ini` file.
 
 Copy `config.example.ini` to a new file `config.ini` if using for the first time.
