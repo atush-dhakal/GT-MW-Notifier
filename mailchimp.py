@@ -48,6 +48,10 @@ class OnCampusJobList():
                 'members']
 
         return self._members
+    
+    def get_email_list(self):
+        members = self.get_members()
+        return [x['email_address'] for x in members]
 
     def add_list_member(self, email):
         list_id = self.get_list_id()
