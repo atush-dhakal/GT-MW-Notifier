@@ -1,6 +1,7 @@
 import mailchimp_marketing as MailchimpMarketing
 from mailchimp_marketing.api_client import ApiClientError
 import configparser
+from math import ceil
 
 # Pull keys and other configurations
 config = configparser.ConfigParser()
@@ -9,6 +10,7 @@ mailchimp_config = config['MAILCHIMP']
 
 # API Reference https://github.com/mailchimp/mailchimp-marketing-python
 
+DEFAULT_MEMBERS_COUNT = 500
 
 class OnCampusJobList():
     def __init__(self):
@@ -44,9 +46,18 @@ class OnCampusJobList():
     def get_members(self):
         if self._members is None:
             list_id = self.get_list_id()
-            self._members = self._client.lists.get_list_members_info(list_id)[
-                'members']
+            members_info = self._client.lists.get_list_members_info(list_id, count=DEFAULT_MEMBERS_COUNT)
+            
+            total_members = members_info['total_items']
+            self._members = members_info['members']
 
+            if total_members > len(self._members):                
+                max_offset = ceil(total_members / DEFAULT_MEMBERS_COUNT)
+                for i in range(1, max_offset):
+                    current_offset = DEFAULT_MEMBERS_COUNT * i
+                    current_members = self._client.lists.get_list_members_info(list_id, count=DEFAULT_MEMBERS_COUNT, offset=current_offset)['members']
+                    self._members += current_members
+            
         return self._members
 
     def get_email_list(self):
