@@ -44,7 +44,7 @@ def start_scraping():
     try:
         if not request.is_json:
             return {"error": "No token provided"}, 400
-                
+
         user_token = request.json.get('token', '')
         if user_token == scraper_config['SCRAPER_AUTH_TOKEN']:
             scheduler.run_schedule()
