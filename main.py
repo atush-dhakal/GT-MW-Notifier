@@ -29,13 +29,13 @@ def add_subscriber():
 
         # Verify the recaptcha token. Helps to prevent spam and automated bots submissions
         if not util.is_valid_recaptcha(recaptcha_response):
-            return {'error': 'Failed to validate the reCAPTCHA'}, 400
+            return {'error': 'Failed to validate the reCAPTCHA. Please refresh the page and try again.'}, 400
 
         try:
             util.add_email_subscriber(email_subscriber)
             return {'success': True}, 200
         except:
-            return {'error': "Failed to add subscriber"}, 500
+            return {'error': "You have already subscribed with this email account. Refresh the page and try again with a different email."}, 500
 
 
 # Google Cloud Scheduler hits this endpoint for scraping and sending email
