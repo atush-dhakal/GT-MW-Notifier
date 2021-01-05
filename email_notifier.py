@@ -2,11 +2,14 @@ import smtplib
 import ssl
 import sqlite3
 from sqlite3 import Error
-import pandas as pd
-import jobs_list
-from scraper import JobPostingScraper, JobPostingParser
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+import pandas as pd
+import configparser
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+google_config = config['GOOGLE']
 
 
 def get_template_message(job_detail):
@@ -28,7 +31,7 @@ def get_template_message(job_detail):
     msg = MIMEMultipart("alternative")
     msg["Subject"] = u"Now Hiring {}".format(job_detail["title"])
     part1 = MIMEText(message,
-                    "plain", "utf-8")
+                     "plain", "utf-8")
     msg.attach(part1)
 
     return msg.as_string().encode('ascii')
@@ -37,10 +40,14 @@ def get_template_message(job_detail):
 def send_notification(email_list, job_detail):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
+
     sender_email = "gtstudentjobs@gmail.com"
-    password = input("Type your password and press enter:")
+    password = google_config['EMAIL_PASSWORD']
+
     message = get_template_message(job_detail)
+
     context = ssl.create_default_context()
+
     with smtplib.SMTP(smtp_server, port) as server:
         server.ehlo()  # Can be omitted
         server.starttls(context=context)
@@ -51,8 +58,8 @@ def send_notification(email_list, job_detail):
 
 
 def main():
-    send_notification()
-    print("Success!")
+    send_notification(["gtstudentjobs@gmail.com"], {})
+    print("success!")
 
 
 if __name__ == "__main__":

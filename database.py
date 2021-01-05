@@ -1,6 +1,7 @@
 import sqlite3
 import pandas as pd
 
+
 class Database:
     def __init__(self, path="jobs.db"):
         self.create_connection(path)
@@ -19,14 +20,17 @@ class Database:
             raise "No connection to the database"
         return pd.read_sql_query(query, self.connection)
 
-    def write_to_database(self, dataframe: pd.DataFrame, table_name = 'job_postings'):
+    def write_to_database(self, dataframe: pd.DataFrame, table_name='job_postings'):
         if self.connection is None:
             raise "No connection to the database"
         return dataframe.to_sql(table_name, self.connection, if_exists='append', index=False)
 
+
 def main():
     db = Database(path="jobs.db")
-    print(db.run_query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"))
+    print(db.run_query(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"))
+
 
 if __name__ == "__main__":
     main()
