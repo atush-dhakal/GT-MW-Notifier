@@ -14,7 +14,7 @@ Simply run the following:
 ```
     pip install -r requirements.txt
 ```
-This will install all the dependencies used in the project. Make sure your have the `venv` enabled.
+This will install all the dependencies used in the project. Make sure your have the `venv` enabled. This file is required by GCP for deploying.
 
 ## Adding configs
 We will be adding any configuration values and API keys in `config.ini` file.
