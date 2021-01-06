@@ -42,14 +42,15 @@ def add_subscriber():
 # Google Cloud Scheduler hits this endpoint for scraping and sending email
 @app.route("/scraper/start", methods=["POST"])
 def start_scraping():
-    try:    
+    try:
         req_body = request.get_json(force=True)
         if req_body is None:
             return {"error": "No token provided"}, 400
 
         user_token = req_body.get('token', '')
         if user_token == scraper_config['SCRAPER_AUTH_TOKEN']:
-            target_db = "prod" if os["FLASK_ENV"] == "production" else "test"
+            target_db = "prod" if os.getenv(
+                "FLASK_ENV") == "production" else "test"
             scheduler.run_schedule(database=target_db)
             return {'success': True}, 200
         else:
