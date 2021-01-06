@@ -1,7 +1,8 @@
 import sqlite3
 import pandas as pd
 from scraper import JobPostingScraper, JobPostingParser
-from database import Database
+from database import Database, JobPostingDatabase
+from pymongo import errors
 
 
 DATABASE_COLUMNS = ["job_title", "start_date", "end_date", "contact_name", "contact_email",
@@ -10,31 +11,22 @@ DATABASE_COLUMNS = ["job_title", "start_date", "end_date", "contact_name", "cont
 # Populate the database with default values for the first time
 
 
-def seed_database():
-    scraper = JobPostingScraper()
+def seed_database(database="test"):
+    scraper = JobPostingScraper(database=database)
     job_postings = scraper.getRawJobPostings()
 
     jobs = [JobPostingParser(x).getJob() for x in job_postings]
 
-    """
-        Jobs has a list of dictionary for a given job posting
-        If an attribute is missing, it will be set to None
-        So we can directly get the values from the dictionary to build our data frame
-    """
-    job_frame = pd.DataFrame([list(x.values())
-                              for x in jobs], columns=DATABASE_COLUMNS)
-
-    db = Database(path="jobs.db")
-    db.write_to_database(job_frame, table_name='job_postings')
-
+    db = JobPostingDatabase()    
+    for job in jobs:
+        db.add_job_posting(job)
 
 """
 Is there a new job?
 """
 
-
-def populate_new_jobs():
-    db = Database(path="jobs.db")
+def populate_new_jobs(database="test"):
+    db = JobPostingDatabase(database=database)
 
     # scrape for current data
     scraper = JobPostingScraper()
@@ -44,19 +36,14 @@ def populate_new_jobs():
     new_jobs = []
 
     for job in jobs:
-        current_job_posting = list(job.values())
-        current_job_frame = pd.DataFrame(
-            [current_job_posting], columns=DATABASE_COLUMNS)
-
         try:
-
-            db.write_to_database(current_job_frame, table_name="job_postings")
+            db.add_job_posting(job)
             new_jobs.append(job)
-        # Because of unique index, duplicate jobs will throw IntegrityError
-        except sqlite3.IntegrityError as e:
+        # Because of unique index, duplicate jobs will throw DuplicateKeyError
+        except errors.DuplicateKeyError as e:
             # Found a duplicate job, ignore this job
             continue
-        except sqlite3.Error as e:
+        except Exception as e:
             print(e)
 
     return new_jobs

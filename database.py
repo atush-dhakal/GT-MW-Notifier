@@ -1,35 +1,58 @@
-import sqlite3
-import pandas as pd
+import configparser
+import pymongo
+
+config = configparser.ConfigParser()
+config.read('config.ini')
+database_config = config['DATABASE']
 
 
-class Database:
-    def __init__(self, path="jobs.db"):
-        self.create_connection(path)
+class MongoDatabase:
+    def __init__(self, database="test"):
+        print("Establishing connection to the database")
+        self.connection_string = database_config['CONNECTION_STRING']
+        self.client = pymongo.MongoClient(self.connection_string)
+        self.database = self.client[database]
 
-    def create_connection(self, path):
-        self.connection = None
-        # This block is a way of testing connection to the database and allows us to control what happens if there is an error
+    def reset_connection(self):
+        self.client = pymongo.MongoClient(self.connection_string)
+
+    def verify_connection(self):
         try:
-            self.connection = sqlite3.connect(path)
-            print("Connection to SQLite DB successful")
-        except sqlite3.Error as e:
-            print(f"The error '{e}' occurred")
+            self.client.server_info()
+            print("Connected to the database")
+        except:
+            self.reset_connection()
 
-    def run_query(self, query: str):
-        if self.connection is None:
-            raise "No connection to the database"
-        return pd.read_sql_query(query, self.connection)
 
-    def write_to_database(self, dataframe: pd.DataFrame, table_name='job_postings'):
-        if self.connection is None:
-            raise "No connection to the database"
-        return dataframe.to_sql(table_name, self.connection, if_exists='append', index=False)
+class JobPostingDatabase(MongoDatabase):
+    def __init__(self, database="test"):
+        MongoDatabase.__init__(self, database=database)
+
+    def get_job_postings_collection(self) -> pymongo.collection:
+        return self.database["job_postings"]
+
+    def get_job_postings_by_filter(self, filter):
+        return self.get_job_postings_collection().find(filter)
+
+    def add_job_posting(self, job_posting):
+        return self.get_job_postings_collection().insert_one(job_posting)
+
+    def get_all_job_postings(self):
+        return list(self.get_job_postings_collection().find({}))
+
+
+def create_unique_job_index():
+    db = JobPostingDatabase()
+    indexes_fields = ["title", "start_date", "end_date", "contact_name", "contact_email",
+                      "description", "hours", "location", "pay_rate", "positions_available"]
+    indexes = [(x, pymongo.ASCENDING) for x in indexes_fields]
+    db.get_job_postings_collection().create_index(
+        indexes, name="unique_job", unique=True)
 
 
 def main():
-    db = Database(path="jobs.db")
-    print(db.run_query(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"))
+    db = JobPostingDatabase()
+    print(db.get_all_job_postings())
 
 
 if __name__ == "__main__":

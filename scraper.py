@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup, element
 import requests
+from datetime import datetime
 from dateutil.parser import parse
 import json
 
@@ -116,7 +117,8 @@ class JobPostingParser:
             'location': self.getLocation(),
             'work_study': self.getWorkStudy(),
             'pay_rate': self.getPayRate(),
-            'positions_available': self.getPositionsAvailable()
+            'positions_available': self.getPositionsAvailable(),
+            'created_at': datetime.now().isoformat()
         }
 
 
