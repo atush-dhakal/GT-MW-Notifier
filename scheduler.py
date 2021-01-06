@@ -9,6 +9,8 @@ from mailchimp import OnCampusJobList
 def run_schedule(database="test"):
     new_jobs = jobs_list.populate_new_jobs(database=database)
 
+    print(f"Found {len(new_jobs)} new jobs")
+
     if len(new_jobs) > 0:
         custom_list = OnCampusJobList()
         members = custom_list.get_email_list()
