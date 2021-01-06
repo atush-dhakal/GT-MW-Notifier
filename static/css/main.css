@@ -64,8 +64,8 @@ footer {
 }
 
 #about {
-    background: url("../img/triangle-backdrop.svg") no-repeat;
-    background-size: cover;
+    /* background: url("../img/triangle-backdrop.svg") no-repeat;
+    background-size: cover; */
 }
 
 .triangle-area {
