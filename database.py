@@ -13,15 +13,21 @@ class MongoDatabase:
         self.client = pymongo.MongoClient(self.connection_string)
         self.database = self.client[database]
 
+        self.verify_connection()
+
     def reset_connection(self):
         self.client = pymongo.MongoClient(self.connection_string)
 
     def verify_connection(self):
-        try:
-            self.client.server_info()
-            print("Connected to the database")
-        except:
-            self.reset_connection()
+        for _ in range(5):
+            try:
+                self.client.server_info()
+                print("Connected to the database")
+                return
+            except:
+                self.reset_connection()
+        
+        raise "Failed to connect to the database"
 
 
 class JobPostingDatabase(MongoDatabase):

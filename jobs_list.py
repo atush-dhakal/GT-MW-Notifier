@@ -12,12 +12,12 @@ DATABASE_COLUMNS = ["job_title", "start_date", "end_date", "contact_name", "cont
 
 
 def seed_database(database="test"):
-    scraper = JobPostingScraper(database=database)
+    scraper = JobPostingScraper()
     job_postings = scraper.getRawJobPostings()
 
     jobs = [JobPostingParser(x).getJob() for x in job_postings]
 
-    db = JobPostingDatabase()    
+    db = JobPostingDatabase(database=database)    
     for job in jobs:
         db.add_job_posting(job)
 
@@ -50,9 +50,9 @@ def populate_new_jobs(database="test"):
 
 
 def main():
-    # seed_database()  # happen only once. NEVER RUN THIS LINE!
-    new_jobs = populate_new_jobs()
-    print(new_jobs)
+    seed_database(database="prod")  # happen only once. NEVER RUN THIS LINE!
+    # new_jobs = populate_new_jobs()
+    # print(new_jobs)
 
 
 if __name__ == "__main__":
