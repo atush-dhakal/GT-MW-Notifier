@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import configparser
 import util
 import scheduler
+import os
 
 app = Flask(__name__)
 
@@ -48,7 +49,8 @@ def start_scraping():
 
         user_token = req_body.get('token', '')
         if user_token == scraper_config['SCRAPER_AUTH_TOKEN']:
-            scheduler.run_schedule("prod")
+            target_db = "prod" if os["FLASK_ENV"] == "production" else "test"
+            scheduler.run_schedule(database=target_db)
             return {'success': True}, 200
         else:
             return {'error': 'Please provide a valid token'}, 400

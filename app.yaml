@@ -8,6 +8,8 @@ handlers:
     redirect_http_response_code: '301'
   - url: .*
     script: auto
+env_variables:
+  FLASK_ENV: production
 automatic_scaling:
   min_idle_instances: automatic
   max_idle_instances: automatic
