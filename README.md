@@ -26,3 +26,13 @@ Simple run the following command:
 After creating this new file, there may be missing API keys. Contact the admins to get the API keys.
 
 If you are adding any new values to your `config.ini` file, make sure to add it to `config.example.ini` as well and commit those changes so other developer can add those new config keys. However, do not save the API keys in `config.example.ini` file. Instead put a placeholder for the API keys.
+
+## Version 1.0
+
+## Features:
+- Stores user email using Mailchimp
+- Uses Beautiful Soup to scrape job postings on https://studentcenter.gatech.edu/campus-jobs
+- Stores new job postings on remote Mongo DB
+- Uses GMAIL API to send email notifications with new job posting
+
+
