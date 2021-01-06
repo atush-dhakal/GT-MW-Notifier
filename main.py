@@ -41,13 +41,14 @@ def add_subscriber():
 # Google Cloud Scheduler hits this endpoint for scraping and sending email
 @app.route("/scraper/start", methods=["POST"])
 def start_scraping():
-    try:
-        if not request.is_json:
+    try:    
+        req_body = request.get_json(force=True)
+        if req_body is None:
             return {"error": "No token provided"}, 400
 
-        user_token = request.json.get('token', '')
+        user_token = req_body.get('token', '')
         if user_token == scraper_config['SCRAPER_AUTH_TOKEN']:
-            scheduler.run_schedule()
+            scheduler.run_schedule("prod")
             return {'success': True}, 200
         else:
             return {'error': 'Please provide a valid token'}, 400
