@@ -32,7 +32,7 @@ If you are adding any new values to your `config.ini` file, make sure to add it 
 
 ## Features:
 - Stores user email using Mailchimp
-- Uses Beautiful Soup to scrape job postings on https://studentcenter.gatech.edu/campus-jobs
+- Uses Beautiful Soup to scrape job postings from https://studentcenter.gatech.edu/campus-jobs
 - Stores new job postings on remote Mongo DB
 - Uses GMAIL API to send email notifications with new job posting
 
