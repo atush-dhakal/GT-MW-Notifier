@@ -2,6 +2,7 @@ import mailchimp_marketing as MailchimpMarketing
 from mailchimp_marketing.api_client import ApiClientError
 import configparser
 from math import ceil
+import email_notifier
 
 # Pull keys and other configurations
 config = configparser.ConfigParser()
@@ -66,6 +67,7 @@ class OnCampusJobList():
 
     def add_list_member(self, email):
         list_id = self.get_list_id()
+        email_notifier.send_welcome_message(email) #send welcome message for new subscribers
         params = {
             'email_address': email,
             'status': 'subscribed'
