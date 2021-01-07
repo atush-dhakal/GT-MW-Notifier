@@ -36,7 +36,39 @@ def get_template_message(job_detail):
 
     return msg.as_string().encode('ascii')
 
+def get_welcome_message():
+    message = """\
+    
+    Thank you very much for subscribing to the GT On Campus Jobs notification service. 
+    We hope this service will help you land your next on-campus job!
+    """
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = u"Welcome to the GT On Campus Jobs notification service!"
+    part1 = MIMEText(message,
+                     "plain", "utf-8")
+    msg.attach(part1)
 
+    return msg.as_string().encode('ascii')
+
+#send welcome message for new subscribers!
+def send_welcome_message(email_address):
+    port = 587  # For starttls
+    smtp_server = "smtp.gmail.com"
+
+    sender_email = "gtstudentjobs@gmail.com"
+    password = google_config['EMAIL_PASSWORD']
+
+    message = get_welcome_message()
+
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP(smtp_server, port) as server:
+        server.ehlo()  # Can be omitted
+        server.starttls(context=context)
+        server.ehlo()  # Can be omitted
+        server.login(sender_email, password)
+        server.sendmail(sender_email, email_address, message)
+    
 def send_notification(email_list, job_detail):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
