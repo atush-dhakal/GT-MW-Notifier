@@ -133,31 +133,19 @@ def get_welcome_message():
 
 #send welcome message for new subscribers!
 def send_welcome_message(email_address):
-    port = 587  # For starttls
-    smtp_server = "smtp.gmail.com"
-
-    sender_email = "gtstudentjobs@gmail.com"
-    password = google_config['EMAIL_PASSWORD']
-
-    message = get_welcome_message()
-
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()  # Can be omitted
-        server.starttls(context=context)
-        server.ehlo()  # Can be omitted
-        server.login(sender_email, password)
-        server.sendmail(sender_email, email_address, message)
+    message = get_welcome_message()    
+    send_email([email_address], message)
     
 def send_notification(email_list, job_detail):
+    message = get_template_message(job_detail)
+    send_email(email_list, message)
+
+def send_email(email_list, message):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
 
     sender_email = "gtstudentjobs@gmail.com"
     password = google_config['EMAIL_PASSWORD']
-
-    message = get_template_message(job_detail)
 
     context = ssl.create_default_context()
 
@@ -166,8 +154,8 @@ def send_notification(email_list, job_detail):
         server.starttls(context=context)
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
-        for elem in email_list:
-            server.sendmail(sender_email, elem, message)
+        for receiver_email in email_list:
+            server.sendmail(sender_email, receiver_email, message)
 
 
 def main():
