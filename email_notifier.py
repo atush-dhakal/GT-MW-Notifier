@@ -1,64 +1,54 @@
 import smtplib
 import ssl
-import sqlite3
-from sqlite3 import Error
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import pandas as pd
+from dateutil.parser import parse
 import configparser
+
+from email_templates.new_job_info import get_new_job_email_template
+from email_templates.new_subscriber import get_new_subscriber_template
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 google_config = config['GOOGLE']
 
 
-def get_template_message(job_detail):
-    message = """\
-    
-    Title: {}
-    Description: {}
-    Start Date: {}
-    End Date: {}
-    Contact Name: {}
-    Contact Email: {}
-    Hours: {}
-    Location: {}
-    Work Study: {}
-    Pay Rate: {}
-    Positions Available: {}
-        """.format(job_detail["title"], job_detail["description"], job_detail["start_date"], job_detail["end_date"], job_detail["contact_name"], job_detail["contact_email"],
-                   job_detail["hours"], job_detail["location"], job_detail["work_study"], job_detail["pay_rate"], job_detail["positions_available"])
+def get_email_content(subject, template):
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = u"Now Hiring {}".format(job_detail["title"])
-    part1 = MIMEText(message,
-                     "plain", "utf-8")
-    msg.attach(part1)
+    msg["Subject"] = u"{}".format(subject)
+    msg.attach(MIMEText(template, "html", "utf-8"))
 
     return msg.as_string().encode('ascii')
 
-def get_welcome_message():
-    message = """\
-    
-    Thank you very much for subscribing to the GT On Campus Jobs notification service. 
-    We hope this service will help you land your next on-campus job!
-    """
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = u"Welcome to the GT On Campus Jobs notification service!"
-    part1 = MIMEText(message,
-                     "plain", "utf-8")
-    msg.attach(part1)
 
-    return msg.as_string().encode('ascii')
-
-#send welcome message for new subscribers!
 def send_welcome_message(email_address):
+    template = get_new_subscriber_template()
+    subject = "Welcome to the GT On-Campus Jobs notification service!"
+    email_content = get_email_content(subject, template)
+    send_email([email_address], email_content)
+
+
+def send_new_job_notification(email_list, job_detail):
+    start_date = parse(job_detail['start_date']).strftime("%m/%d/%Y")
+    end_date = parse(job_detail['end_date']).strftime("%m/%d/%Y")
+
+    template = get_new_job_email_template(
+        job_detail["title"], start_date, end_date, job_detail["pay_rate"],
+        job_detail["work_study"], job_detail["positions_available"],
+        job_detail["location"], job_detail["hours"], job_detail["description"],
+        job_detail["contact_name"], job_detail["contact_email"])
+
+    subject = "GT On-Campus Jobs | Now Hiring {}".format(job_detail["title"])
+    email_content = get_email_content(subject, template)
+    send_email(email_list, email_content)
+
+
+def send_email(email_list, email_content):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
 
     sender_email = "gtstudentjobs@gmail.com"
     password = google_config['EMAIL_PASSWORD']
-
-    message = get_welcome_message()
 
     context = ssl.create_default_context()
 
@@ -67,31 +57,18 @@ def send_welcome_message(email_address):
         server.starttls(context=context)
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
-        server.sendmail(sender_email, email_address, message)
-    
-def send_notification(email_list, job_detail):
-    port = 587  # For starttls
-    smtp_server = "smtp.gmail.com"
-
-    sender_email = "gtstudentjobs@gmail.com"
-    password = google_config['EMAIL_PASSWORD']
-
-    message = get_template_message(job_detail)
-
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()  # Can be omitted
-        server.starttls(context=context)
-        server.ehlo()  # Can be omitted
-        server.login(sender_email, password)
-        for elem in email_list:
-            server.sendmail(sender_email, elem, message)
+        for receiver_email in email_list:
+            server.sendmail(sender_email, receiver_email, email_content)
 
 
 def main():
-    send_notification(["gtstudentjobs@gmail.com"], {})
-    print("success!")
+    # import database
+    # db = database.JobPostingDatabase()
+    # test_job = db.get_all_job_postings()[0]
+
+    # # send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
+
+    send_welcome_message("sebop97458@nonicamy.com")
 
 
 if __name__ == "__main__":

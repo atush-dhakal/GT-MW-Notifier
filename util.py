@@ -2,7 +2,7 @@ import requests
 import configparser
 from email_validator import validate_email, EmailNotValidError
 from mailchimp import OnCampusJobList
-
+import email_notifier
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -34,3 +34,9 @@ def is_valid_email(email) -> bool:
 def add_email_subscriber(new_email_subscriber):
     custom_list = OnCampusJobList()
     custom_list.add_list_member(new_email_subscriber)
+    try:
+        email_notifier.send_welcome_message(new_email_subscriber) #send welcome message for new subscribers. We don't want to send welcome message to existing user
+    except Exception as e:
+        print("Failed to send a welcome email")
+        print(e)
+        pass
