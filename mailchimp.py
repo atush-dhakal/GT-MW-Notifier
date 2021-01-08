@@ -67,7 +67,6 @@ class OnCampusJobList():
 
     def add_list_member(self, email):
         list_id = self.get_list_id()
-        email_notifier.send_welcome_message(email) #send welcome message for new subscribers
         params = {
             'email_address': email,
             'status': 'subscribed'
