@@ -10,9 +10,11 @@ import groupme_bot
 def run_schedule(database="test"):
     new_jobs = jobs_list.populate_new_jobs(database=database)
 
-    groupme_bot.send_message(f"Found {len(new_jobs)} new jobs")
+    print(f"Found {len(new_jobs)} new jobs")
 
     if len(new_jobs) > 0:
+        groupme_bot.send_message(f"Found {len(new_jobs)} new jobs")
+
         custom_list = OnCampusJobList()
         members = custom_list.get_email_list()
         for job in new_jobs:
