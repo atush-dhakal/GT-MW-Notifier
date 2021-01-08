@@ -1,102 +1,24 @@
 import smtplib
 import ssl
-import sqlite3
-from sqlite3 import Error
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import pandas as pd
+from dateutil.parser import parse
 import configparser
+
+from email_templates.new_job_info import get_new_job_email_template
 
 config = configparser.ConfigParser()
 config.read('config.ini')
 google_config = config['GOOGLE']
 
 
-def get_template_message(job_detail):
-    message = """\
-    
-    Title: {}
-    
-    
-    Description: {}
-    
-    
-    Start Date: {}
-    
-    
-    End Date: {}
-    
-    
-    Contact Name: {}
-    
-    
-    Contact Email: {}
-    
-    
-    Hours: {}
-    
-    
-    Location: {}
-    
-    
-    Work Study: {}
-    
-    
-    Pay Rate: {}
-    
-    
-    Positions Available: {}
-    
-    
-        """.format(job_detail["title"], job_detail["description"], job_detail["start_date"], job_detail["end_date"], job_detail["contact_name"], job_detail["contact_email"],
-                   job_detail["hours"], job_detail["location"], job_detail["work_study"], job_detail["pay_rate"], job_detail["positions_available"])
-    html = """\
-    <html>
-    <body>
-    <b>Title:</b> {title}
-    <br>
-    <br>
-    <b>Description:</b> {description}
-    <br>
-    <br>
-    <b>Start Date:</b> {start_date}
-    <br>
-    <br>
-    <b>End Date:</b> {end_date}
-    <br>
-    <br>
-    <b>Contact Name:</b> {contact_name}
-    <br>
-    <br>
-    <b>Contact Email:</b> {contact_email}
-    <br>
-    <br>
-    <b>Hours:</b> {hours}
-    <br>
-    <br>
-    <b>Location:</b> {location}
-    <br>
-    <br>
-    <b>Work Study:</b> {work_study}
-    <br>
-    <br>
-    <b>Pay Rate:</b> {pay_rate}
-    <br>
-    <br>
-    <b>Positions Available:</b> {positions_available}
-    </body>
-    </html>
-    """.format(title=job_detail["title"], description=job_detail["description"], start_date=job_detail["start_date"], end_date=job_detail["end_date"], contact_name=job_detail["contact_name"], contact_email=job_detail["contact_email"],
-                   hours=job_detail["hours"], location=job_detail["location"], work_study=job_detail["work_study"], pay_rate=job_detail["pay_rate"], positions_available=job_detail["positions_available"])
+def get_email_content(subject, template):
     msg = MIMEMultipart("alternative")
-    msg["Subject"] = u"Now Hiring {}".format(job_detail["title"])
-    part1 = MIMEText(message,
-                     "plain", "utf-8")
-    part2 = MIMEText(html, "html")
-    msg.attach(part1)
-    msg.attach(part2)
+    msg["Subject"] = u"{}".format(subject)
+    msg.attach(MIMEText(template, "html", "utf-8"))
 
     return msg.as_string().encode('ascii')
+
 
 def get_welcome_message():
     #name = "Dylan"
@@ -111,7 +33,7 @@ def get_welcome_message():
     # html = """\
     # <html>
     # <body>
-    # <b>Thank you very much for subscribing to the GT On Campus Jobs notification service.</b> 
+    # <b>Thank you very much for subscribing to the GT On Campus Jobs notification service.</b>
     # <br>
     # <br>
     # We hope this service will help you land your next on-campus job!
@@ -127,20 +49,34 @@ def get_welcome_message():
                      "plain", "utf-8")
     #part2 = MIMEText(html, "html")
     msg.attach(part1)
-    #msg.attach(part2)
+    # msg.attach(part2)
 
     return msg.as_string().encode('ascii')
 
-#send welcome message for new subscribers!
-def send_welcome_message(email_address):
-    message = get_welcome_message()    
-    send_email([email_address], message)
-    
-def send_notification(email_list, job_detail):
-    message = get_template_message(job_detail)
-    send_email(email_list, message)
+# send welcome message for new subscribers!
 
-def send_email(email_list, message):
+
+def send_welcome_message(email_address):
+    message = get_welcome_message()
+    send_email([email_address], message)
+
+
+def send_new_job_notification(email_list, job_detail):
+    start_date = parse(job_detail['start_date']).strftime("%m/%d/%Y")
+    end_date = parse(job_detail['end_date']).strftime("%m/%d/%Y")
+
+    template = get_new_job_email_template(
+        job_detail["title"], start_date, end_date, job_detail["pay_rate"],
+        job_detail["work_study"], job_detail["positions_available"],
+        job_detail["location"], job_detail["hours"], job_detail["description"],
+        job_detail["contact_name"], job_detail["contact_email"])
+
+    subject = "GT On-Campus Jobs | Now Hiring {}".format(job_detail["title"])
+    email_content = get_email_content(subject, template)
+    send_email(email_list, email_content)
+
+
+def send_email(email_list, email_content):
     port = 587  # For starttls
     smtp_server = "smtp.gmail.com"
 
@@ -155,14 +91,17 @@ def send_email(email_list, message):
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
         for receiver_email in email_list:
-            server.sendmail(sender_email, receiver_email, message)
+            server.sendmail(sender_email, receiver_email, email_content)
 
 
 def main():
-    #send_notification(["gtstudentjobs@gmail.com"], {})
-    send_welcome_message("karkir0003@gmail.com")
-    print("success!")
+    import database
+    db = database.JobPostingDatabase()
+    test_job = db.get_all_job_postings()[0]
 
+    send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
+        
+        
 
 if __name__ == "__main__":
     main()

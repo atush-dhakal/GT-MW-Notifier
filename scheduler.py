@@ -2,7 +2,7 @@ import schedule
 import time
 import scraper
 import jobs_list
-from email_notifier import send_notification
+from email_notifier import send_new_job_notification
 from mailchimp import OnCampusJobList
 
 
@@ -15,7 +15,11 @@ def run_schedule(database="test"):
         custom_list = OnCampusJobList()
         members = custom_list.get_email_list()
         for job in new_jobs:
-            send_notification(members, job)
+            try:
+                send_new_job_notification(members, job)
+            except Exception as e:
+                print("Failed to send email")
+                print(e)
 
 
 if __name__ == "__main__":
