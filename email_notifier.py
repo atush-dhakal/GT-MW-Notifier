@@ -66,7 +66,7 @@ def main():
     # db = database.JobPostingDatabase()
     # test_job = db.get_all_job_postings()[0]
 
-    # # send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
+    # send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
 
     send_welcome_message("sebop97458@nonicamy.com")
 
