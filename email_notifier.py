@@ -16,37 +16,118 @@ def get_template_message(job_detail):
     message = """\
     
     Title: {}
+    
+    
     Description: {}
+    
+    
     Start Date: {}
+    
+    
     End Date: {}
+    
+    
     Contact Name: {}
+    
+    
     Contact Email: {}
+    
+    
     Hours: {}
+    
+    
     Location: {}
+    
+    
     Work Study: {}
+    
+    
     Pay Rate: {}
+    
+    
     Positions Available: {}
+    
+    
         """.format(job_detail["title"], job_detail["description"], job_detail["start_date"], job_detail["end_date"], job_detail["contact_name"], job_detail["contact_email"],
                    job_detail["hours"], job_detail["location"], job_detail["work_study"], job_detail["pay_rate"], job_detail["positions_available"])
+    html = """\
+    <html>
+    <body>
+    <b>Title:</b> {title}
+    <br>
+    <br>
+    <b>Description:</b> {description}
+    <br>
+    <br>
+    <b>Start Date:</b> {start_date}
+    <br>
+    <br>
+    <b>End Date:</b> {end_date}
+    <br>
+    <br>
+    <b>Contact Name:</b> {contact_name}
+    <br>
+    <br>
+    <b>Contact Email:</b> {contact_email}
+    <br>
+    <br>
+    <b>Hours:</b> {hours}
+    <br>
+    <br>
+    <b>Location:</b> {location}
+    <br>
+    <br>
+    <b>Work Study:</b> {work_study}
+    <br>
+    <br>
+    <b>Pay Rate:</b> {pay_rate}
+    <br>
+    <br>
+    <b>Positions Available:</b> {positions_available}
+    </body>
+    </html>
+    """.format(title=job_detail["title"], description=job_detail["description"], start_date=job_detail["start_date"], end_date=job_detail["end_date"], contact_name=job_detail["contact_name"], contact_email=job_detail["contact_email"],
+                   hours=job_detail["hours"], location=job_detail["location"], work_study=job_detail["work_study"], pay_rate=job_detail["pay_rate"], positions_available=job_detail["positions_available"])
     msg = MIMEMultipart("alternative")
     msg["Subject"] = u"Now Hiring {}".format(job_detail["title"])
     part1 = MIMEText(message,
                      "plain", "utf-8")
+    part2 = MIMEText(html, "html")
     msg.attach(part1)
+    msg.attach(part2)
 
     return msg.as_string().encode('ascii')
 
 def get_welcome_message():
-    message = """\
+    #name = "Dylan"
+    message = """
     
     Thank you very much for subscribing to the GT On Campus Jobs notification service. 
+    
+    
     We hope this service will help you land your next on-campus job!
+    
     """
+    # html = """\
+    # <html>
+    # <body>
+    # <b>Thank you very much for subscribing to the GT On Campus Jobs notification service.</b> 
+    # <br>
+    # <br>
+    # We hope this service will help you land your next on-campus job!
+    # <br>
+    # <br>
+    # My name is {name}
+    # </body>
+    # </html>
+    # """.format(name=name)
     msg = MIMEMultipart("alternative")
     msg["Subject"] = u"Welcome to the GT On Campus Jobs notification service!"
     part1 = MIMEText(message,
                      "plain", "utf-8")
+    #part2 = MIMEText(html, "html")
     msg.attach(part1)
+    #msg.attach(part2)
 
     return msg.as_string().encode('ascii')
 
@@ -90,7 +171,8 @@ def send_notification(email_list, job_detail):
 
 
 def main():
-    send_notification(["gtstudentjobs@gmail.com"], {})
+    #send_notification(["gtstudentjobs@gmail.com"], {})
+    send_welcome_message("karkir0003@gmail.com")
     print("success!")
 
 
