@@ -6,6 +6,7 @@ from dateutil.parser import parse
 import configparser
 
 from email_templates.new_job_info import get_new_job_email_template
+from email_templates.new_subscriber import get_new_subscriber_template
 
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -20,45 +21,11 @@ def get_email_content(subject, template):
     return msg.as_string().encode('ascii')
 
 
-def get_welcome_message():
-    #name = "Dylan"
-    message = """
-    
-    Thank you very much for subscribing to the GT On Campus Jobs notification service. 
-    
-    
-    We hope this service will help you land your next on-campus job!
-    
-    """
-    # html = """\
-    # <html>
-    # <body>
-    # <b>Thank you very much for subscribing to the GT On Campus Jobs notification service.</b>
-    # <br>
-    # <br>
-    # We hope this service will help you land your next on-campus job!
-    # <br>
-    # <br>
-    # My name is {name}
-    # </body>
-    # </html>
-    # """.format(name=name)
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = u"Welcome to the GT On Campus Jobs notification service!"
-    part1 = MIMEText(message,
-                     "plain", "utf-8")
-    #part2 = MIMEText(html, "html")
-    msg.attach(part1)
-    # msg.attach(part2)
-
-    return msg.as_string().encode('ascii')
-
-# send welcome message for new subscribers!
-
-
 def send_welcome_message(email_address):
-    message = get_welcome_message()
-    send_email([email_address], message)
+    template = get_new_subscriber_template()
+    subject = "Welcome to the GT On-Campus Jobs notification service!"
+    email_content = get_email_content(subject, template)
+    send_email([email_address], email_content)
 
 
 def send_new_job_notification(email_list, job_detail):
@@ -95,13 +62,14 @@ def send_email(email_list, email_content):
 
 
 def main():
-    import database
-    db = database.JobPostingDatabase()
-    test_job = db.get_all_job_postings()[0]
+    # import database
+    # db = database.JobPostingDatabase()
+    # test_job = db.get_all_job_postings()[0]
 
-    send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
-        
-        
+    # # send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
+
+    send_welcome_message("sebop97458@nonicamy.com")
+
 
 if __name__ == "__main__":
     main()
