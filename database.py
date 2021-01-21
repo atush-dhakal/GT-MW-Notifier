@@ -38,7 +38,7 @@ class JobPostingDatabase(MongoDatabase):
         return self.database["job_postings"]
 
     def get_job_postings_by_filter(self, filter):
-        return self.get_job_postings_collection().find(filter)
+        return list(self.get_job_postings_collection().find(filter))
 
     def add_job_posting(self, job_posting):
         return self.get_job_postings_collection().insert_one(job_posting)

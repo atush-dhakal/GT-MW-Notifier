@@ -4,6 +4,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dateutil.parser import parse
 import configparser
+import groupme_bot
 
 from email_templates.new_job_info import get_new_job_email_template
 from email_templates.new_subscriber import get_new_subscriber_template
@@ -32,6 +33,7 @@ def send_new_job_notification(email_list, job_detail):
     start_date = parse(job_detail['start_date']).strftime("%m/%d/%Y")
     end_date = parse(job_detail['end_date']).strftime("%m/%d/%Y")
 
+    # TODO - Add unsubscribe link for for each subscriber while generating the template
     template = get_new_job_email_template(
         job_detail["title"], start_date, end_date, job_detail["pay_rate"],
         job_detail["work_study"], job_detail["positions_available"],
@@ -40,7 +42,16 @@ def send_new_job_notification(email_list, job_detail):
 
     subject = "GT On-Campus Jobs | Now Hiring {}".format(job_detail["title"])
     email_content = get_email_content(subject, template)
-    send_email(email_list, email_content)
+
+    # TODO - Investigate why the server closes when sending email to multiple users:
+    # HOTFIX - Send email a subscriber at a time
+    for receiver_email in email_list:
+        try:
+            send_email([receiver_email], email_content)
+        except Exception as e:
+            groupme_bot.send_message(
+                f"Failed to send email to -> {receiver_email}")
+            print(e)
 
 
 def send_email(email_list, email_content):
@@ -57,8 +68,10 @@ def send_email(email_list, email_content):
         server.starttls(context=context)
         server.ehlo()  # Can be omitted
         server.login(sender_email, password)
-        for receiver_email in email_list:
-            server.sendmail(sender_email, receiver_email, email_content)
+        try:
+            server.sendmail(sender_email, email_list, email_content)
+        finally:
+            server.quit()
 
 
 def main():
