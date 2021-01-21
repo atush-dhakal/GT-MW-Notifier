@@ -63,7 +63,7 @@ class OnCampusJobList():
 
     def get_email_list(self):
         members = self.get_members()
-        return [x['email_address'] for x in members]
+        return [x['email_address'] for x in members if x['status'] == "subscribed"]
 
     def add_list_member(self, email):
         list_id = self.get_list_id()
@@ -77,4 +77,4 @@ class OnCampusJobList():
 if __name__ == "__main__":
     custom_list = OnCampusJobList()
     members = custom_list.get_email_list()
-    print("Email list currently has {} members: ".format(len(members)) + str([x for x in members]))
+    print("Email list currently has {} members:\n".format(len(members)) + str([x for x in members]))

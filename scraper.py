@@ -118,7 +118,7 @@ class JobPostingParser:
             'work_study': self.getWorkStudy(),
             'pay_rate': self.getPayRate(),
             'positions_available': self.getPositionsAvailable(),
-            'created_at': datetime.now().isoformat()
+            'created_at': datetime.now()
         }
 
 
