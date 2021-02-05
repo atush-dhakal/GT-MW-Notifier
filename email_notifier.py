@@ -45,13 +45,24 @@ def send_new_job_notification(email_list, job_detail):
 
     # TODO - Investigate why the server closes when sending email to multiple users:
     # HOTFIX - Send email a subscriber at a time
-    for receiver_email in email_list:
-        try:
-            send_email([receiver_email], email_content)
-        except Exception as e:
-            groupme_bot.send_message(
-                f"Failed to send email to -> {receiver_email}")
-            print(e)
+    remaining_emails = email_list
+    for _ in range(3):
+        if len(remaining_emails) == 0:
+            break
+
+        failed_emails = []
+        for receiver_email in remaining_emails:
+            try:
+                send_email([receiver_email], email_content)
+            except Exception as e:
+                failed_emails.append(receiver_email)
+                print(e)
+
+        remaining_emails = failed_emails
+
+    if len(remaining_emails) > 0:
+        groupme_bot.send_message(
+            f"There were {len(remaining_emails)} exceptions while sending email")
 
 
 def send_email(email_list, email_content):
@@ -63,25 +74,33 @@ def send_email(email_list, email_content):
 
     context = ssl.create_default_context()
 
-    with smtplib.SMTP(smtp_server, port) as server:
-        server.ehlo()  # Can be omitted
-        server.starttls(context=context)
-        server.ehlo()  # Can be omitted
+    with smtplib.SMTP_SSL(smtp_server) as server:
+        # server.ehlo()  # Can be omitted
+        # server.starttls(context=context)
+        # server.ehlo()  # Can be omitted
         server.login(sender_email, password)
-        try:
-            server.sendmail(sender_email, email_list, email_content)
-        finally:
-            server.quit()
+
+        server.sendmail(sender_email, email_list, email_content)
 
 
 def main():
+    # import bson
     # import database
-    # db = database.JobPostingDatabase()
-    # test_job = db.get_all_job_postings()[0]
 
-    # send_new_job_notification(["gtstudentjobs@gmail.com"], test_job)
+    # db = database.JobPostingDatabase(database="prod")
+    # test_job = db.get_job_postings_by_filter(
+    #     {"_id": bson.ObjectId('600f3c1c529f71f1fc50f023')})[0]
+    # print(test_job)
+
+    # from mailchimp import OnCampusJobList
+    # custom_list = OnCampusJobList().get_email_list()
+    # print(len(custom_list))
 
     send_welcome_message("sebop97458@nonicamy.com")
+
+    # send_new_job_notification(["hadeyaw586@laklica.com", "prettyandsimple@example.com",
+    #                            "firstname.lastname@example.com", "email@subdomain.example.com", "firstname+lastname@example.com"], test_job)
+    pass
 
 
 if __name__ == "__main__":
