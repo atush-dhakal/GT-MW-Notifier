@@ -1,5 +1,4 @@
 import sqlite3
-import pandas as pd
 from scraper import JobPostingScraper, JobPostingParser
 from database import JobPostingDatabase
 from pymongo import errors

@@ -6,7 +6,7 @@
 Create a virtual environment for the python project. Run the following:
 ```
     python -m venv venv
-    ./venv/Scripts/activate
+    ./venv/bin/activate
 ```
 This simplies the need to get the dependencies for the project. If you have Anaconda Prompt, you can create a virtual environment by making sure to run `pip install virtualenv` and then do `virtualenv venv` in the terminal to set up the virtual environment.
 
@@ -28,7 +28,6 @@ Simple run the following command:
 After creating this new file, there may be missing API keys. Contact the admins to get the API keys and update the existing `config.ini` file on your local copy.
 
 If you are adding any new values to your `config.ini` file, make sure to add it to `config.example.ini` as well and commit those changes so other developer can add those new config keys. However, do not save the API keys in `config.example.ini` file. Instead put a placeholder for the API keys.
-
 
 ## Features:
 - Stores user email using Mailchimp API
